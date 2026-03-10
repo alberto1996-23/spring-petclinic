@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.condition.DisabledInNativeImage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -32,7 +32,7 @@ import org.springframework.test.context.aot.DisabledInAotMode;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Optional;
+import jakarta.servlet.ServletException;
 
 /**
  * Test class for {@link VisitController}
@@ -42,7 +42,6 @@ import java.util.Optional;
  */
 @WebMvcTest(VisitController.class)
 @DisabledInNativeImage
-@DisabledInAotMode
 class VisitControllerTests {
 
 	private static final int TEST_OWNER_ID = 1;
@@ -89,6 +88,18 @@ class VisitControllerTests {
 			.andExpect(model().attributeHasErrors("visit"))
 			.andExpect(status().isOk())
 			.andExpect(view().name("pets/createOrUpdateVisitForm"));
+	}
+
+	@Test
+	void testLoadPetWithVisitOwnerNotFound() throws Exception {
+		given(this.owners.findById(999)).willReturn(Optional.empty());
+		Assertions.assertThrows(ServletException.class, () -> mockMvc.perform(get("/owners/999/pets/1/visits/new")));
+	}
+
+	@Test
+	void testLoadPetWithVisitPetNotFound() throws Exception {
+		Assertions.assertThrows(ServletException.class,
+				() -> mockMvc.perform(get("/owners/{ownerId}/pets/2/visits/new", TEST_OWNER_ID)));
 	}
 
 }
