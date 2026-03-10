@@ -16,6 +16,7 @@
 
 package org.springframework.samples.petclinic.owner;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -206,6 +207,20 @@ class PetControllerTests {
 				.andExpect(view().name("pets/createOrUpdatePetForm"));
 		}
 
+	}
+
+	@Test
+	void testFindOwnerNotFound() throws Exception {
+		given(this.owners.findById(999)).willReturn(Optional.empty());
+		Assertions.assertThrows(jakarta.servlet.ServletException.class,
+				() -> mockMvc.perform(get("/owners/999/pets/new")));
+	}
+
+	@Test
+	void testFindPetOwnerNotFound() throws Exception {
+		given(this.owners.findById(999)).willReturn(Optional.empty());
+		Assertions.assertThrows(jakarta.servlet.ServletException.class,
+				() -> mockMvc.perform(get("/owners/999/pets/1/edit")));
 	}
 
 }
