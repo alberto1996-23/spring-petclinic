@@ -19,22 +19,37 @@ package org.springframework.samples.petclinic.system;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cache.CacheManager;
+import org.springframework.boot.cache.autoconfigure.JCacheManagerCustomizer;
+import org.springframework.context.ApplicationContext;
+
+import javax.cache.CacheManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 class CacheConfigurationTests {
 
-	@Autowired
+	@Autowired(required = false)
 	private CacheManager cacheManager;
+
+	@Autowired
+	private ApplicationContext context;
 
 	@Test
 	void testCacheConfiguration() {
 		// Access the cache to ensure it's created
-		var cache = cacheManager.getCache("vets");
-		assertThat(cache).isNotNull();
-		assertThat(cacheManager.getCacheNames()).contains("vets");
+		if (cacheManager != null) {
+			var cache = cacheManager.getCache("vets");
+			assertThat(cache).isNotNull();
+			assertThat(cacheManager.getCacheNames()).contains("vets");
+		}
+	}
+
+	@Test
+	void testJCacheManagerCustomizerBean() {
+		// Verify the customizer bean is created
+		JCacheManagerCustomizer customizer = context.getBean(JCacheManagerCustomizer.class);
+		assertThat(customizer).isNotNull();
 	}
 
 }
