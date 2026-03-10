@@ -17,6 +17,7 @@
 package org.springframework.samples.petclinic.owner;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledInNativeImage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -246,6 +247,12 @@ class OwnerControllerTests {
 			.andExpect(status().is3xxRedirection())
 			.andExpect(redirectedUrl("/owners/" + pathOwnerId + "/edit"))
 			.andExpect(flash().attributeExists("error"));
+	}
+
+	@Test
+	void testShowOwnerNotFound() throws Exception {
+		given(this.owners.findById(999)).willReturn(Optional.empty());
+		Assertions.assertThrows(jakarta.servlet.ServletException.class, () -> mockMvc.perform(get("/owners/999")));
 	}
 
 }
