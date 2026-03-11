@@ -208,4 +208,14 @@ class PetControllerTests {
 
 	}
 
+	@Test
+	void testUpdatePetDetailsRedirect() throws Exception {
+		mockMvc
+			.perform(post("/owners/{ownerId}/pets/{petId}/edit", TEST_OWNER_ID, TEST_PET_ID).param("name", "Buddy")
+				.param("birthDate", "2020-01-01")
+				.param("type", "hamster"))
+			.andExpect(status().is3xxRedirection())
+			.andExpect(view().name("redirect:/owners/{ownerId}"));
+	}
+
 }
